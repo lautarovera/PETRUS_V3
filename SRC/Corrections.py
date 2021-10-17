@@ -6,7 +6,7 @@
 #
 #  Project:        PETRUS
 #  File:           Corrections.py
-#  Date(YY/MM/DD): 16/02/21
+#  Date(YY/MM/DD): 10/17/2021
 #
 #   Author: GNSS Academy
 #   Copyright 2021 GNSS Academy

@@ -246,7 +246,7 @@ def computeSigmaTropo(TropoMpp):
     return SigmaTropo
 
 def computeSigmaAirborne(Conf, Elev, CorrectInfo):
-    if Conf["EQUIPMENT_CLASS"] ==1:
+    if Conf["EQUIPMENT_CLASS"] == 1:
         SigmaAirborne = 5
 
     else:

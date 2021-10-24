@@ -35,3 +35,11 @@ def computePercentile(Cdf, Percentile):
             return Bin
 
     return Cdf
+
+def computeOverbound(Sigmas, ThresholdBin):
+    SigmaOver = 0.0
+    for Bin, Sigma in Sigmas.items():
+        if Bin >= ThresholdBin:
+            SigmaOver = updateMax(SigmaOver, Sigma)
+
+    return SigmaOver

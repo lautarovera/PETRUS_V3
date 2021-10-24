@@ -132,12 +132,12 @@ def computeSpvtSolution(Conf, RcvrInfo, CorrInfo, Mode):
             computeDop(GMatrix, PosInfo)
 
             if PosInfo["Pdop"] < float(Conf["PDOP_MAX"]):
-                # Compute the S matrix
+                # Compute S matrix
                 SMatrix = computeS(GMatrix, WMatrix)
                 # Call WLSQ function
-                wlsq(Conf, CorrInfo, PosInfo, SMatrix, Mode)
+                wlsq(Conf, CorrInfo, PosInfo, SMatrix)
                 # Compute protection levels
-                computePL(GMatrix, WMatrix, PosInfo, Mode)
+                computePL(GMatrix, WMatrix, PosInfo)
                 # Compute safety indexes
                 PosInfo["Hsi"] = PosInfo["Hpe"] / PosInfo["Hpl"]
                 PosInfo["Vsi"] = PosInfo["Vpe"] / PosInfo["Vpl"]

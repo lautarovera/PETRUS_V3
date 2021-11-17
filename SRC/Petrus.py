@@ -35,11 +35,17 @@ from InputOutput import readObsEpoch
 from InputOutput import readCorrectInputs
 from InputOutput import generatePreproFile
 from InputOutput import generateCorrFile
-from InputOutput import PreproHdr, CorrHdr
+from InputOutput import generatePosFile
+from InputOutput import generatePerfFile
+from InputOutput import PreproHdr, CorrHdr, PosHdr, PerfHdr, HistHdr
 from InputOutput import CSNEPOCHS
 from InputOutput import ObsIdx
 from Preprocessing import runPreProcMeas
 from Corrections import runCorrectMeas
+from Perf import initPerfInfo, updatePerfEpoch, computePerf, computeVpeHist
+from Spvt import computeSpvtSolution
+from PosPlots import generatePosPlots
+from PerfPlots import generatePerfPlots, generateHistPlot
 from COMMON.Dates import convertJulianDay2YearMonthDay
 from COMMON.Dates import convertYearMonthDay2Doy
 
@@ -82,6 +88,9 @@ RcvrInfo = readRcvr(RcvrFile)
 print( '------------------------------------')
 print( '--> RUNNING PETRUS:')
 print( '------------------------------------')
+
+# Initialize Variables
+PerfFilesList = []
 
 # Loop over RCVRs
 #-----------------------------------------------------------------------
@@ -132,6 +141,30 @@ for Rcvr in RcvrInfo.keys():
             # Create output file
             fcorr = createOutputFile(CorrFile, CorrHdr)
 
+        # If Position outputs are activated
+        if Conf["SPVT_OUT"] == 1:
+            # Define the full path and name to the output POS file
+            PosFile = Scen + '/OUT/SPVT/' + "POS_%s_Y%02dD%03d.dat" % (Rcvr, Year % 100, Doy)
+
+            # Create output file
+            fpos = createOutputFile(PosFile, PosHdr)
+
+        # If Performances outputs are activated
+        if Conf["PERF_OUT"] == 1:
+            # Define the full path and name to the output PERF file
+            PerfFile = Scen + '/OUT/PERF/' + "PERF_%s_Y%02dD%03d.dat" % (Rcvr, Year % 100, Doy)
+
+            # Create output file
+            fperf = createOutputFile(PerfFile, PerfHdr)
+
+        # If LPV200 VPE Histogram outputs are activated
+        if Conf["VPEHIST_OUT"] == 1:
+            # Define the full path and name to the output HIST file
+            HistFile = Scen + '/OUT/PERF/' + "VPE_HIST_%s_Y%02dD%03d.dat" % (Rcvr, Year % 100, Doy)
+
+            # Create output file
+            fhist = createOutputFile(HistFile, HistHdr)
+
         # Define the full path and name to the SAT file to read and open the file
         SatFile = Scen + \
             '/OUT/SAT/' + "SAT_%s_Y%02dD%03d.dat" % \
@@ -171,6 +204,10 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
             "PrevRej": 0,            # Previous Rejection flag
                                      # ...
         } # End of SatPreproObsInfo
+        Services = ["OS", "APVI", "LPV200", "CATI", "NPA", "MARITIME", "CUSTOM"]
+        PerfInfo = OrderedDict({})
+        VpeHistInfo = OrderedDict({})
+        initPerfInfo(Conf, Services, Rcvr, RcvrInfo[Rcvr], Doy, PerfInfo, VpeHistInfo)
         SodInputs = -1
 
         # Open OBS file
@@ -224,6 +261,23 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
                             # Generate output file
                             generateCorrFile(fcorr, CorrInfo)
 
+                        # Compute spvt solution and intermediate performances
+                        # ----------------------------------------------------------
+                        # If only PA mode activated
+                        PosInfo = computeSpvtSolution(Conf, RcvrInfo[Rcvr], CorrInfo)
+
+                        # If Position information available
+                        if len(PosInfo) > 0:
+                            # Compute intermediate performances for PA services
+                            for Service, PerfInfoSer in PerfInfo.items():
+                                if Service != "NPA":
+                                    updatePerfEpoch(Conf, Service, PosInfo, PerfInfoSer)
+
+                            # If SPVT outputs are requested
+                            if Conf["SPVT_OUT"] == 1:
+                                # Generate output file
+                                generatePosFile(fpos, PosInfo, Rcvr)
+
                 # End if ObsInfo != []:
                 else:
                     EndOfFile = True
@@ -233,6 +287,16 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
             # End of while not EndOfFile:
     
         # End of with open(ObsFile, 'r') as f:
+
+        # Compute performances
+        # ----------------------------------------------------------
+        for Service, PerfInfoSer in PerfInfo.items():
+            computePerf(PerfInfoSer)
+
+            # If PERF outputs are requested
+            if Conf["PERF_OUT"] == 1:
+                # Generate output file
+                generatePerfFile(fperf, PerfInfoSer)
 
         # If PREPRO outputs are requested
         if Conf["PREPRO_OUT"] == 1:
@@ -257,6 +321,45 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
 
             # Generate CORR plots
             # generateCorrPlots(CorrFile, SatFile, RcvrInfo[Rcvr])
+
+        # If SPVT outputs are requested
+        if Conf["SPVT_OUT"] == 1:
+            # Close POS output file
+            fpos.close()
+
+            # Display Message
+            print("INFO: Reading file: %s and generating POS figures..." % PosFile)
+
+            # Generate POS plots
+            generatePosPlots(Conf, PosFile)
+
+        # If PERF outputs are requested
+        if Conf["PERF_OUT"] == 1:
+        # Close PERF output file
+            fperf.close()
+
+            # Append file to PerFilesList
+            PerfFilesList.append(PerfFile)
+        
+        # If LPV200 VPE Histogram outputs are requested 
+        if Conf["VPEHIST_OUT"] == 1:
+            # Check if LPV200 service level is activated
+            if "LPV200" not in PerfInfo.keys():
+                sys.stderr.write("ERROR: Please activate LPV200 service level for LPV200 VPE histogram computation \n")
+                sys.exit(1)
+
+            # Compute VPE Histogram and generate output file for LPV200 service level
+            computeVpeHist(fhist, PerfInfo["LPV200"], VpeHistInfo)
+            
+            # Close PERF output file
+            fhist.close()
+
+            # Display Message
+            print("INFO: Reading file: %s and generating VPE Histogram..." % HistFile)
+
+            # Generate VPE Histogram plots
+            generateHistPlot(PerfInfo["LPV200"]["ExtVpe"], HistFile)
+
 
         # Close input files
         fsat.close()

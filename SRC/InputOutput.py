@@ -225,6 +225,94 @@ CorrIdx["SMP"]=24
 CorrIdx["SUERE"]=25
 CorrIdx["ENTtoGPS"]=26
 
+# SVPT
+# Header
+PosHdr = "#SOD  DOY RCVR       LON       LAT       ALT            CLK SOL NVS NVS-SOL     HPE     VPE     EPE     NPE     HPL     VPL     HSI     VSI    HDOP    VDOP    PDOP    TDOP \n"
+
+# Line format
+PosFmt = "%05d %03d %s %9.5f %9.5f %9.3f %14.3f %3d %3d %7d %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f".split()
+
+# File columns
+PosIdx = OrderedDict({})
+PosIdx["SOD"]=0
+PosIdx["DOY"]=1
+PosIdx["RCVR"]=2
+PosIdx["LON"]=3
+PosIdx["LAT"]=4
+PosIdx["ALT"]=5
+PosIdx["CLK"]=6
+PosIdx["SOL"]=7
+PosIdx["NVS"]=8
+PosIdx["NVS-SOL"]=9
+PosIdx["HPE"]=10
+PosIdx["VPE"]=11
+PosIdx["EPE"]=12
+PosIdx["NPE"]=13
+PosIdx["HPL"]=14
+PosIdx["VPL"]=15
+PosIdx["HSI"]=16
+PosIdx["VSI"]=17
+PosIdx["HDOP"]=18
+PosIdx["VDOP"]=19
+PosIdx["PDOP"]=20
+PosIdx["TDOP"]=21
+
+# PERFORMANCES
+# Header
+PerfHdr = "#RCVR        LON        LAT   DOY  SERVICE SAMSOL SAMNOSOL  AVAIL   CONTRISK NOTAVAIL NSVMIN NSVMAX     HPERMS     VPERMS      HPE95      VPE95     HPEMAX     VPEMAX     EXTVPE     HPLMIN     VPLMIN     HPLMAX     VPLMAX  HSIMAX  VSIMAX NMI NHMI    PDOPMAX    HDOPMAX    VDOPMAX \n"
+
+# Line format
+PerfFmt = "%5s %10.5f %10.5f %5d %8s %6d %8d %5.3f %10.3e %8d %6d %6d %10.3f %10.3f %10.3f %10.3f %10.3f %10.3f %10.3f %10.3f %10.3f %10.3f %10.3f %7.3f %7.3f %3d %4d %10.3f %10.3f %10.3f".split()
+
+# File columns
+PerfIdx = OrderedDict({})
+PerfIdx["RCVR"]=0
+PerfIdx["LON"]=1
+PerfIdx["LAT"]=2
+PerfIdx["DOY"]=3
+PerfIdx["SERVICE"]=4
+PerfIdx["SAMSOL"]=5
+PerfIdx["SAMNOSOL"]=6
+PerfIdx["AVAIL"]=7
+PerfIdx["CONTRISK"]=8
+PerfIdx["NOTAVAIL"]=9
+PerfIdx["NSVMIN"]=10
+PerfIdx["NSVMAX"]=11
+PerfIdx["HPERMS"]=12
+PerfIdx["VPERMS"]=13
+PerfIdx["HPE95"]=14
+PerfIdx["VPE95"]=15
+PerfIdx["HPEMAX"]=16
+PerfIdx["VPEMAX"]=17
+PerfIdx["EXTVPE"]=18
+PerfIdx["HPLMIN"]=19
+PerfIdx["VPLMIN"]=20
+PerfIdx["HPLMAX"]=21
+PerfIdx["VPLMAX"]=22
+PerfIdx["HSIMAX"]=23
+PerfIdx["VSIMAX"]=24
+PerfIdx["NMI"]=25
+PerfIdx["NHMI"]=26
+PerfIdx["PDOPMAX"]=27
+PerfIdx["HDOPMAX"]=28
+PerfIdx["VDOPMAX"]=29
+
+# VPE HISTOGRAM
+# Header
+HistHdr = "#RCVR  SERVICE BINID    BINMIN    BINMAX NUMSAM BINFREQ \n"
+
+# Line format
+HistFmt = "%5s %8s %5d %9.6f %9.6f %6d %1.5f".split()
+
+# File columns
+HistIdx = OrderedDict({})
+HistIdx["RCVR"]=0
+HistIdx["SERVICE"]=1
+HistIdx["BINID"]=2
+HistIdx["BINMIN"]=3
+HistIdx["BINMAX"]=4
+HistIdx["NUMSAM"]=5
+HistIdx["BINFREQ"]=6
 
 # Input functions
 #----------------------------------------------------------------------
@@ -508,6 +596,24 @@ def readConf(CfgFile):
                         # Corrected outputs selection [0:OFF|1:ON]
                         #--------------------------------------------------------------------       
                         elif Key=='CORR_OUT':
+                            # Check parameter and load it in Conf
+                            Conf[Key] = checkConfParam(Key, Fields, 1, 1, [0], [1])
+
+                            # Increment number of read parameters
+                            NReadParams = NReadParams + 1
+
+                        # Corrected outputs selection [0:OFF|1:ON]
+                        #--------------------------------------------------------------------       
+                        elif Key=='SPVT_OUT':
+                            # Check parameter and load it in Conf
+                            Conf[Key] = checkConfParam(Key, Fields, 1, 1, [0], [1])
+
+                            # Increment number of read parameters
+                            NReadParams = NReadParams + 1
+
+                        # Corrected outputs selection [0:OFF|1:ON]
+                        #--------------------------------------------------------------------       
+                        elif Key=='PERF_OUT':
                             # Check parameter and load it in Conf
                             Conf[Key] = checkConfParam(Key, Fields, 1, 1, [0], [1])
 
@@ -1213,7 +1319,150 @@ def generateCorrFile(fcorr, CorrInfo):
 
         fcorr.write("\n")
 
-# End of generatePreproFile
+# End of generateCorrFile
+
+
+def generatePosFile(fpos, PosInfo, Rcvr):
+
+    # Purpose: generate output file with Position results
+
+    # Parameters
+    # ==========
+    # fpos: file descriptor
+    #       Descriptor for POS output file
+    # PosInfo: dict
+    #          Dictionary containing Pos info for Rcvr in the 
+    #          current epoch
+    # Rcvr: Receiver acronym
+
+    # Returns
+    # =======
+    # Nothing
+
+    # Prepare outputs
+    Outputs = OrderedDict({})
+    Outputs["SOD"] = PosInfo["Sod"]
+    Outputs["DOY"] = PosInfo["Doy"]
+    Outputs["RCVR"] = Rcvr
+    Outputs["LON"] = PosInfo["Lon"]
+    Outputs["LAT"] = PosInfo["Lat"]
+    Outputs["ALT"] = PosInfo["Alt"]
+    Outputs["CLK"] = PosInfo["Clk"]
+    Outputs["SOL"] = PosInfo["Sol"]
+    Outputs["NSV"] = PosInfo["NumSatVis"]
+    Outputs["NSV-SOL"] = PosInfo["NumSatSol"]
+    Outputs["HPE"] = PosInfo["Hpe"]
+    Outputs["VPE"] = PosInfo["Vpe"]
+    Outputs["EPE"] = PosInfo["Epe"]
+    Outputs["NPE"] = PosInfo["Npe"]
+    Outputs["HPL"] = PosInfo["Hpl"]
+    Outputs["VPL"] = PosInfo["Vpl"]
+    Outputs["HSI"] = PosInfo["Hsi"]
+    Outputs["VSI"] = PosInfo["Vsi"]
+    Outputs["HDOP"] = PosInfo["Hdop"]
+    Outputs["VDOP"] = PosInfo["Vdop"]
+    Outputs["PDOP"] = PosInfo["Pdop"]
+    Outputs["TDOP"] = PosInfo["Tdop"]
+
+    # Write line
+    for i, result in enumerate(Outputs):
+        fpos.write(((PosFmt[i] + " ") % Outputs[result]))
+
+    fpos.write("\n")
+
+# End of generatePosFile
+
+
+def generatePerfFile(fperf, PerfInfoSer):
+
+    # Purpose: generate output file with Performance results
+
+    # Parameters
+    # ==========
+    # fperf: file descriptor
+    #        Descriptor for Performances output file
+    # PerfInfoSer: dict
+    #              Dictionary containing Performances info for Rcvr 
+    #              and service level
+
+    # Returns
+    # =======
+    # Nothing
+
+    # Prepare outputs
+    Outputs = OrderedDict({})
+    Outputs["RCVR"] = PerfInfoSer["Rcvr"]
+    Outputs["LON"] = PerfInfoSer["Lon"]
+    Outputs["LAT"] = PerfInfoSer["Lat"]
+    Outputs["DOY"] = PerfInfoSer["Doy"]
+    Outputs["SERVICE"] = PerfInfoSer["Service"]
+    Outputs["SAMSOL"] = PerfInfoSer["SamSol"]
+    Outputs["SAMNOSOL"] = PerfInfoSer["SamNoSol"]
+    Outputs["AVAIL"] = PerfInfoSer["Avail"]
+    Outputs["CONTRISK"] = PerfInfoSer["ContRisk"]
+    Outputs["NOTAVAIL"] = PerfInfoSer["NotAvail"]
+    Outputs["NSVMIN"] = PerfInfoSer["NsvMin"]
+    Outputs["NSVMAX"] = PerfInfoSer["NsvMax"]
+    Outputs["HPERMS"] = PerfInfoSer["HpeRms"]
+    Outputs["VPERMS"] = PerfInfoSer["VpeRms"]
+    Outputs["HPE95"] = PerfInfoSer["Hpe95"]
+    Outputs["VPE95"] = PerfInfoSer["Vpe95"]
+    Outputs["HPEMAX"] = PerfInfoSer["HpeMax"]
+    Outputs["VPEMAX"] = PerfInfoSer["VpeMax"]
+    Outputs["EXTVPE"] = PerfInfoSer["ExtVpe"]
+    Outputs["HPLMIN"] = PerfInfoSer["HplMin"]
+    Outputs["VPLMIN"] = PerfInfoSer["VplMin"]
+    Outputs["HPLMAX"] = PerfInfoSer["HplMax"]
+    Outputs["VPLMAX"] = PerfInfoSer["VplMax"]
+    Outputs["HSIMAX"] = PerfInfoSer["HsiMax"]
+    Outputs["VSIMAX"] = PerfInfoSer["VsiMax"]
+    Outputs["NMI"] = PerfInfoSer["Nmi"]
+    Outputs["NHMI"] = PerfInfoSer["Nhmi"]
+    Outputs["PDOPMAX"] = PerfInfoSer["PdopMax"]
+    Outputs["HDOPMAX"] = PerfInfoSer["HdopMax"]
+    Outputs["VDOPMAX"] = PerfInfoSer["VdopMax"]
+
+    # Write line
+    for i, result in enumerate(Outputs):
+        fperf.write(((PerfFmt[i] + " ") % Outputs[result]))
+
+    fperf.write("\n")
+
+# End of generatePerfFile
+
+
+def generateHistFile(fhist, VpeHistInfo):
+
+    # Purpose: generate output file with LPV200 VPE Histogram results
+
+    # Parameters
+    # ==========
+    # fhist: file descriptor
+    #        Descriptor for VPE Histogram output file
+    # VpeHistInfoSer: dict
+    #                 Dictionary containing VPE Histogram info for LPV200 service level
+
+    # Returns
+    # =======
+    # Nothing
+
+    # Prepare outputs
+    Outputs = OrderedDict({})
+    Outputs["RCVR"] = VpeHistInfo["Rcvr"]
+    Outputs["SERVICE"] = VpeHistInfo["Service"]
+    Outputs["BINID"] = VpeHistInfo["BinId"]
+    Outputs["BINMIN"] = VpeHistInfo["BinMin"]
+    Outputs["BINMAX"] = VpeHistInfo["BinMax"]
+    Outputs["NUMSAM"] = VpeHistInfo["BinNumSam"]
+    Outputs["BINFREQ"] = VpeHistInfo["BinFreq"]
+
+    # Write line
+    for i, result in enumerate(Outputs):
+        fhist.write(((HistFmt[i] + " ") % Outputs[result]))
+
+    fhist.write("\n")
+
+# End of generateHistFile
 
 
 def openInputFile(Path):

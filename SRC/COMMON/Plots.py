@@ -200,11 +200,11 @@ def generateLinesPlot(PlotConf):
 
         else:
             ax.plot(PlotConf["xData"][Label], PlotConf["yData"][Label],
-            PlotConf["Marker"],
+            PlotConf["Marker"] if "Marker" in PlotConf else '.',
             linewidth = LineWidth,
             markersize = LineWidth,
             alpha=Alpha,
-            c = PlotConf["Color"][Label])
+            c = PlotConf["Color"][Label] if "Color" in PlotConf else 'blue')
 
     for key in PlotConf:
         if key == "Legend" and PlotConf[key] == 1:

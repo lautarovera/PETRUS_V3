@@ -22,12 +22,15 @@ def computeCdfFromHistogram(Histogram, NSamples):
     for key in sorted(Histogram.keys()):
         SortedHist[key] = Histogram[key]
     Cdf = OrderedDict({})
+    Sigmas = OrderedDict({})
     CumulatedSamples = 0
     for Bin, Samples in SortedHist.items():
         CumulatedSamples = CumulatedSamples + Samples
         Cdf[Bin] = float(CumulatedSamples) / NSamples
+        # Compute Sigmas
+        Sigmas[Bin] = float(Bin/(sqrt(2)*erfinv(Cdf[Bin])))
 
-    return Cdf
+    return Cdf, Sigmas
 
 def computePercentile(Cdf, Percentile):
     for Bin, Freq in Cdf.items():

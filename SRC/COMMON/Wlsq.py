@@ -17,8 +17,8 @@ def buildResidualsVector(CorrInfo, PosInfo):
             SatPos = np.array([SatCorrInfo["SatX"], SatCorrInfo["SatY"], SatCorrInfo["SatZ"]])
             # Compute geometrical range
             GeomRange = np.linalg.norm(np.subtract(SatPos, RcvrPos))
-            # Compute pesudo-range residuals
-            PsrResiduals = np.vstack(SatCorrInfo["CorrPsr"] - PosInfo["Clk"] - GeomRange)
+            # Compute pseudo-range residuals
+            PsrResiduals.append(SatCorrInfo["CorrPsr"] - PosInfo["Clk"] - GeomRange)
 
     return PsrResiduals
 
@@ -27,7 +27,7 @@ def wlsq(Conf, CorrInfo, PosInfo, SMatrix):
     i = 0
     NormRcvrPosDelta = 9999.9
 
-    while i <= Conf["MAX_LSQ_ITER"][0] and NormRcvrPosDelta > Const.LSQ_DELTA_EPS:
+    while i <= Conf["MAX_LSQ_ITER"] and NormRcvrPosDelta > Const.LSQ_DELTA_EPS:
 
         PsrResiduals = buildResidualsVector(CorrInfo, PosInfo)
 
@@ -47,3 +47,10 @@ def wlsq(Conf, CorrInfo, PosInfo, SMatrix):
         PosInfo["Npe"] = PosInfo["Npe"] + RcvrPosDelta[1]
         PosInfo["Hpe"] = np.sqrt(PosInfo["Epe"] ** 2 + PosInfo["Npe"] ** 2)
         PosInfo["Vpe"] = PosInfo["Vpe"] + RcvrPosDelta[2]
+
+        i += 1
+
+    # If the wlsq iterative filter converges
+    if i <= Conf["MAX_LSQ_ITER"]:
+        # PA solution achieved
+            PosInfo["Sol"] = 1

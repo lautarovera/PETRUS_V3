@@ -86,6 +86,53 @@ def prepareAxis(PlotConf, ax):
     except:
         pass
 
+def prepareDoubleAxis(PlotConf, ax1, ax2):
+    for key in PlotConf:
+        if key == "Title":
+            ax1.set_title(PlotConf["Title"])
+
+        for axis in ["x", "y"]:
+            if axis == "x":
+                if key == axis + "Label":
+                    ax1.set_xlabel(PlotConf[axis + "Label"])
+
+                if key == axis + "Ticks":
+                    ax1.set_xticks(PlotConf[axis + "Ticks"])
+
+                if key == axis + "TicksLabels":
+                    ax1.set_xticklabels(PlotConf[axis + "TicksLabels"])
+                
+                if key == axis + "Lim":
+                    ax1.set_xlim(PlotConf[axis + "Lim"])
+
+            if axis == "y":
+                if key == axis + "1Label":
+                    ax1.set_ylabel(PlotConf[axis + "1Label"])
+
+                if key == axis + "2Label":
+                    ax2.set_ylabel(PlotConf[axis + "2Label"])
+
+                if key == axis + "1Ticks":
+                    ax1.set_yticks(PlotConf[axis + "1Ticks"])
+
+                if key == axis + "2Ticks":
+                    ax2.set_yticks(PlotConf[axis + "2Ticks"])
+
+                if key == axis + "1TicksLabels":
+                    ax1.set_yticklabels(PlotConf[axis + "1TicksLabels"])
+
+                if key == axis + "2TicksLabels":
+                    ax2.set_yticklabels(PlotConf[axis + "2TicksLabels"])
+                
+                if key == axis + "1Lim":
+                    ax1.set_ylim(PlotConf[axis + "1Lim"])
+                
+                if key == axis + "2Lim":
+                    ax2.set_ylim(PlotConf[axis + "2Lim"])
+
+        if key == "Grid" and PlotConf[key] == True:
+            ax1.grid(linestyle='--', linewidth=0.5, which='both')
+
 def prepareColorBar(PlotConf, ax, Values, Polar = 0):
     try:
         Min = PlotConf["ColorBarMin"]
@@ -162,57 +209,96 @@ def drawMap(PlotConf, ax,):
 def generateLinesPlot(PlotConf):
     fig, ax = createFigure(PlotConf)
 
+    LineWidth = 1.5
+    MarkerSize = 1.5
+    Alpha = 1
+
     for key in PlotConf:
         if key == "ColorBar":
             normalize, cmap = prepareColorBar(PlotConf, ax, PlotConf["zData"])
         if key == "Map" and PlotConf[key] == True:
             drawMap(PlotConf, ax)
+        if key == "LineWidth":
+            LineWidth = PlotConf["LineWidth"]
+        if key == "Alpha":
+            Alpha = PlotConf["Alpha"]
+        if key == "MarkerSize":
+            MarkerSize = PlotConf["MarkerSize"]
 
-    for Label in PlotConf["yData"].keys():
-        LineWidth = 1.5
-        Alpha = 1
+    if "DoubleAxis" in PlotConf and PlotConf["DoubleAxis"] == True:
+        ax1 = ax
+        ax2 = ax1.twinx()
+        prepareDoubleAxis(PlotConf, ax1, ax2)
 
-        for key in PlotConf:
-            if key == "LineWidth":
-                LineWidth = PlotConf["LineWidth"]
-            if key == "Alpha":
-                Alpha = PlotConf["Alpha"]
+        for Label in PlotConf["y1Data"].keys():
+            ax1.plot(PlotConf["xData"][Label], PlotConf["y1Data"][Label],
+            PlotConf["Marker"],
+            color = PlotConf["Color"][Label],
+            label = Label,
+            linewidth = PlotConf["LineWidth"],
+            markersize = MarkerSize,
+            alpha=Alpha)
 
-        if "MarkerSize" in PlotConf and Label in PlotConf["MarkerSize"]:
-            LineWidth = PlotConf["MarkerSize"][Label]
+        for Label in PlotConf["y2Data"].keys():
+            ax2.plot(PlotConf["xData"][Label], PlotConf["y2Data"][Label],
+            PlotConf["Marker"],
+            color = PlotConf["Color"][Label],
+            label = Label,
+            linewidth = PlotConf["LineWidth"],
+            markersize = MarkerSize,
+            alpha=Alpha)
 
-        if "ColorBar" in PlotConf:
-            if "Color" in PlotConf and Label in PlotConf["Color"]:
-                ax.scatter(PlotConf["xData"][Label], PlotConf["yData"][Label],
-                marker = PlotConf["Marker"],
-                linewidth = LineWidth,
-                s = LineWidth,
-                alpha=Alpha,
-                c = PlotConf["Color"][Label])
+        if "Legend" in PlotConf and PlotConf["Legend"] == True:
+            handles_labels = [ax.get_legend_handles_labels() for ax in fig.axes]
+            handles, labels = [sum(lol, []) for lol in zip(*handles_labels)]
+            Legend = plt.legend(handles, labels, loc='upper right', prop={'size': 8})
+            for iHandle in range(len(Legend.legendHandles)):
+                Legend.legendHandles[iHandle]._legmarker.set_markersize(7)  
+        
+    else:
+        for Label in PlotConf["yData"].keys():
+
+            if "ColorBar" in PlotConf:
+                if "Color" in PlotConf and Label in PlotConf["Color"]:
+                    ax.scatter(PlotConf["xData"][Label], PlotConf["yData"][Label],
+                    marker = PlotConf["Marker"],
+                    linewidth = LineWidth,
+                    s = LineWidth,
+                    alpha=Alpha,
+                    c = PlotConf["Color"][Label])
+
+                else:
+                    ax.scatter(PlotConf["xData"][Label], PlotConf["yData"][Label],
+                    marker = PlotConf["Marker"],
+                    linewidth = LineWidth,
+                    s = LineWidth,
+                    alpha=Alpha,
+                    c = cmap(normalize(np.array(PlotConf["zData"][Label]))))
 
             else:
-                ax.scatter(PlotConf["xData"][Label], PlotConf["yData"][Label],
-                marker = PlotConf["Marker"],
+                ax.plot(PlotConf["xData"][Label], PlotConf["yData"][Label],
+                PlotConf["Marker"] if "Marker" in PlotConf else '.',
                 linewidth = LineWidth,
-                s = LineWidth,
+                markersize = MarkerSize,
                 alpha=Alpha,
-                c = cmap(normalize(np.array(PlotConf["zData"][Label]))))
+                label = Label,
+                c = PlotConf["Color"][Label] if "Color" in PlotConf else 'blue')
 
-        else:
-            ax.plot(PlotConf["xData"][Label], PlotConf["yData"][Label],
-            PlotConf["Marker"] if "Marker" in PlotConf else '.',
-            linewidth = LineWidth,
-            markersize = LineWidth,
-            alpha=Alpha,
-            c = PlotConf["Color"][Label] if "Color" in PlotConf else 'blue')
+        if "HLine" in PlotConf.keys():
+            for Line in PlotConf["HLine"]:
+                ax.hlines(Line[0], Line[1], Line[2], color="black", linestyle='--', linewidth=0.75)
+        if "VLine" in PlotConf.keys():
+            for Line in PlotConf["VLine"]:
+                ax.vlines(Line[0], Line[1], Line[2], color="black", linestyle='--', linewidth=0.75)
+        if "SLine" in PlotConf.keys():
+            ax.plot(PlotConf["SLine"][0], PlotConf["SLine"][1], color="black", linestyle='--', linewidth=0.75)
 
-    for key in PlotConf:
-        if key == "Legend" and PlotConf[key] == 1:
+        if "Legend" in PlotConf and PlotConf["Legend"] == True:
             Legend = plt.legend(PlotConf["yData"].keys())
             for iHandle in range(len(Legend.legendHandles)):
-                Legend.legendHandles[iHandle]._legmarker.set_markersize(7)
+                Legend.legendHandles[iHandle]._legmarker.set_markersize(7)        
 
-    prepareAxis(PlotConf, ax)
+        prepareAxis(PlotConf, ax)
 
     saveFigure(fig, PlotConf["Path"])
     plt.close('all')

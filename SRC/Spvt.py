@@ -86,7 +86,7 @@ def computeSpvtSolution(Conf, RcvrInfo, CorrInfo):
     
     PosInfo = OrderedDict({})
 
-    if len(CorrInfo) != 0:
+    if len(CorrInfo) > 0:
         # Initialize output
         PosInfo = {
                 "Sod": 0,               # Second of day
@@ -112,8 +112,8 @@ def computeSpvtSolution(Conf, RcvrInfo, CorrInfo):
                 "Tdop": 0.0,            # TDOP
         } # End of PosInfo
 
-        PosInfo["Sod"] = CorrInfo[list(CorrInfo.keys())[CorrIdx["SOD"]]]["Sod"]
-        PosInfo["Doy"] = CorrInfo[list(CorrInfo.keys())[CorrIdx["DOY"]]]["Doy"]
+        PosInfo["Sod"] = CorrInfo[list(CorrInfo.keys())[0]]["Sod"]
+        PosInfo["Doy"] = CorrInfo[list(CorrInfo.keys())[0]]["Doy"]
         PosInfo["Lon"] = float(RcvrInfo[RcvrIdx["LON"]])
         PosInfo["Lat"] = float(RcvrInfo[RcvrIdx["LAT"]])
         PosInfo["Alt"] = float(RcvrInfo[RcvrIdx["ALT"]])
@@ -138,6 +138,10 @@ def computeSpvtSolution(Conf, RcvrInfo, CorrInfo):
                 # Compute W Matrix element regarding current satellite
                 Weights.append(1 / (SatCorrInfo["SigmaUere"]) ** 2)
 
+        # Visible satellites
+        PosInfo["NumSatVis"] = len(CorrInfo)
+
+        # Build Weight Matrix
         WMatrix = np.diag(Weights)
 
         if PosInfo["NumSatSol"] >= Const.MIN_NUM_SATS_PVT:
@@ -155,5 +159,12 @@ def computeSpvtSolution(Conf, RcvrInfo, CorrInfo):
                     PosInfo["Hsi"] = PosInfo["Hpe"] / PosInfo["Hpl"]
                     PosInfo["Vsi"] = PosInfo["Vpe"] / PosInfo["Vpl"]
                     # Update intermediate performances
+                
+                else:
+                    # No SPVT solution
+                    PosInfo["Sol"] = 0
+        else:
+            # No SPVT solution
+            PosInfo["Sol"] = 0
     
     return PosInfo

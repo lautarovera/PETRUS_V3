@@ -334,15 +334,18 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
             generatePosPlots(Conf, PosFile)
 
         # If PERF outputs are requested
-        if Conf["PERF_OUT"] == 1:
+        if Conf["PERF_OUT"] == 0:
         # Close PERF output file
             fperf.close()
+
+            # Display Message
+            print("INFO: Reading file: %s and preparing PERF figures..." % PerfFile)
 
             # Append file to PerFilesList
             PerfFilesList.append(PerfFile)
         
         # If LPV200 VPE Histogram outputs are requested 
-        if Conf["VPEHIST_OUT"] == 1:
+        if Conf["VPEHIST_OUT"] == 0:
             # Check if LPV200 service level is activated
             if "LPV200" not in PerfInfo.keys():
                 sys.stderr.write("ERROR: Please activate LPV200 service level for LPV200 VPE histogram computation \n")
@@ -373,6 +376,12 @@ print( '\n------------------------------------')
 print( '--> END OF PETRUS ANALYSIS')
 print( '------------------------------------')
 
+if Conf["PERF_OUT"] == 0:
+    print("INFO: Generating PERF figures for all receivers...")
+
+    # Generate PERF plots
+    for Service in PerfInfo.keys():
+        generatePerfPlots(Service, PerfFilesList)
 
 #######################################################
 # End of Petrus.py

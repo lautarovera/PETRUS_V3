@@ -227,7 +227,7 @@ CorrIdx["ENTtoGPS"]=26
 
 # SVPT
 # Header
-PosHdr = "#SOD  DOY RCVR       LON       LAT       ALT            CLK SOL NVS NVS-SOL     HPE     VPE     EPE     NPE     HPL     VPL     HSI     VSI    HDOP    VDOP    PDOP    TDOP \n"
+PosHdr = "#SOD  DOY RCVR       LON       LAT       ALT            CLK SOL NSV NSV-SOL     HPE     VPE     EPE     NPE     HPL     VPL     HSI     VSI    HDOP    VDOP    PDOP    TDOP \n"
 
 # Line format
 PosFmt = "%05d %03d %s %9.5f %9.5f %9.3f %14.3f %3d %3d %7d %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f".split()
@@ -242,8 +242,8 @@ PosIdx["LAT"]=4
 PosIdx["ALT"]=5
 PosIdx["CLK"]=6
 PosIdx["SOL"]=7
-PosIdx["NVS"]=8
-PosIdx["NVS-SOL"]=9
+PosIdx["NSV"]=8
+PosIdx["NSV-SOL"]=9
 PosIdx["HPE"]=10
 PosIdx["VPE"]=11
 PosIdx["EPE"]=12

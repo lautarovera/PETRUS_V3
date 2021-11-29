@@ -20,9 +20,6 @@ def buildResidualsVector(CorrInfo, PosInfo):
             # Compute pseudo-range residuals
             PsrResiduals.append(SatCorrInfo["CorrPsr"] - PosInfo["Clk"] - GeomRange)
 
-    # Get full residuals vector for the svpt computation
-    # PsrResiduals = np.reshape(PsrResiduals, (PosInfo["NumSatSol"], 1))
-
     return PsrResiduals
 
 def wlsq(Conf, CorrInfo, PosInfo, SMatrix):

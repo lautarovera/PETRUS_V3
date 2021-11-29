@@ -41,7 +41,8 @@ def initPlot(PerfFilesList, PlotConf, Title, Label, Service):
     # Dump information into PlotConf
     PlotConf["Title"] = "%s %s on Year %s DoY %s" % (Service, Title, Year, Doy)
 
-    PlotConf["Path"] = sys.argv[1] + '/OUT/PERF/Figures/%s/' % Label + '%s_%s_Y%sD%s.png' % (Label, Service, Year, Doy)
+    PlotConf["Path"] = sys.argv[1] + '/OUT/PERF/Figures/%s/' % Label + \
+        '%s_%s_Y%sD%s.png' % (Label, Service, Year, Doy)
 
 def initHist(HistFile, PlotConf, Title, Label):
     
@@ -68,7 +69,7 @@ def plotAvailability(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Availability Percentage", "AVAIL", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -79,29 +80,28 @@ def plotAvailability(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Avail = PerfData[PerfIdx["AVAIL"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Availability Percentage [%]"
     PlotConf["ColorBarMin"] = min(Avail)
     PlotConf["ColorBarMax"] = 100.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Avail
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -113,7 +113,7 @@ def plotContRisk(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Continuity Risk", "CONT_RISK", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -124,30 +124,29 @@ def plotContRisk(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
     PlotConf["Decimal"] = True
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Cont = PerfData[PerfIdx["CONTRISK"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Continuity Risk"
     PlotConf["ColorBarMin"] = min(Cont)
     PlotConf["ColorBarMax"] = max(Cont)
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Cont
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -159,7 +158,7 @@ def plotHPE95(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "HPE 95%", "HPE_95%", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -170,29 +169,28 @@ def plotHPE95(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Hpe95 = PerfData[PerfIdx["HPE95"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "HPE 95% [m]"
     PlotConf["ColorBarMin"] = min(Hpe95)
     PlotConf["ColorBarMax"] = max(Hpe95)
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Hpe95
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -204,7 +202,7 @@ def plotVPE95(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "VPE 95%", "VPE_95%", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -215,29 +213,28 @@ def plotVPE95(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Vpe95 = PerfData[PerfIdx["VPE95"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "VPE 95% [m]"
     PlotConf["ColorBarMin"] = min(Vpe95)
     PlotConf["ColorBarMax"] = max(Vpe95)
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Vpe95
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -249,7 +246,7 @@ def plotExtVPE(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Extrapolated VPE", "EXT_VPE", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -260,29 +257,28 @@ def plotExtVPE(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     ExtVpe = PerfData[PerfIdx["EXTVPE"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Extrapolated VPE [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 10.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = ExtVpe
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -294,7 +290,7 @@ def plotMaxHSI(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum HSI", "MAX_HSI", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -305,29 +301,28 @@ def plotMaxHSI(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Hsi = PerfData[PerfIdx["HSIMAX"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum HSI [m]"
     PlotConf["ColorBarMin"] = min(Hsi)
     PlotConf["ColorBarMax"] = max(Hsi)
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Hsi
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -339,7 +334,7 @@ def plotMaxVSI(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum VSI", "MAX_VSI", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -350,29 +345,28 @@ def plotMaxVSI(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Vsi = PerfData[PerfIdx["VSIMAX"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum VSI [m]"
     PlotConf["ColorBarMin"] = min(Vsi)
     PlotConf["ColorBarMax"] = max(Vsi)
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Vsi
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -384,7 +378,7 @@ def plotMinHPL(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Minimum HPL", "MIN_HPL", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -395,29 +389,28 @@ def plotMinHPL(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Hpl = PerfData[PerfIdx["HPLMIN"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Minimum HPL [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 20.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Hpl
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -429,7 +422,7 @@ def plotMinVPL(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Minimum VPL", "MIN_VPL", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -440,29 +433,28 @@ def plotMinVPL(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Vpl = PerfData[PerfIdx["VPLMIN"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Minimum VPL [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 20.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Vpl
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -474,7 +466,7 @@ def plotMaxHPL(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum HPL", "MAX_HPL", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -485,29 +477,28 @@ def plotMaxHPL(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Hpl = PerfData[PerfIdx["HPLMAX"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum HPL [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 200.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Hpl
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -519,7 +510,7 @@ def plotMaxVPL(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum VPL", "MAX_VPL", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -530,29 +521,28 @@ def plotMaxVPL(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Vpl = PerfData[PerfIdx["VPLMAX"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum VPL [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 200.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Vpl
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -564,7 +554,7 @@ def plotMinSats(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Minimum Number of Satellites", "MIN_SATSNUM", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -575,30 +565,30 @@ def plotMinSats(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
     PlotConf["Integer"] = True
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     MinSats = PerfData[PerfIdx["NSVMIN"]][FilterCond].to_numpy(dtype = np.float64)
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Minimum Number of Satellites"
     PlotConf["ColorBarMin"] = min(MinSats)
     PlotConf["ColorBarMax"] = max(MinSats)
-    PlotConf["ColorBarTicks"] = range(int(min(MinSats)), int(max(MinSats)) + 1)
+    PlotConf["ColorBarTicks"] = list(range(int(min(MinSats)), int(max(MinSats)) + 1))
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = MinSats
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -610,7 +600,7 @@ def plotMaxSats(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum Number of Satellites", "MAX_SATSNUM", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -621,20 +611,20 @@ def plotMaxSats(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
     PlotConf["Integer"] = True
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     MaxSats = PerfData[PerfIdx["NSVMAX"]][FilterCond].to_numpy(dtype = np.float64)
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum Number of Satellites"
     PlotConf["ColorBarMin"] = min(MaxSats)
     PlotConf["ColorBarMax"] = max(MaxSats)
@@ -644,7 +634,7 @@ def plotMaxSats(Service, PerfFilesList, PerfData):
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = MaxSats
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -656,7 +646,7 @@ def plotMaxHDOP(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum HDOP", "MAX_HDOP", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -667,29 +657,28 @@ def plotMaxHDOP(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Hdop = PerfData[PerfIdx["HDOPMAX"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum HDOP [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 20.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Hdop
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)
@@ -701,7 +690,7 @@ def plotMaxVDOP(Service, PerfFilesList, PerfData):
     PlotConf = {}
     initPlot(PerfFilesList, PlotConf, "Maximum VDOP", "MAX_VDOP", Service)
 
-    PlotConf["Type"] = "Map"
+    PlotConf["Type"] = "Perf"
     PlotConf["FigSize"] = (12.6,10.4)
 
     PlotConf["LonMin"] = -35
@@ -712,29 +701,28 @@ def plotMaxVDOP(Service, PerfFilesList, PerfData):
     PlotConf["LatStep"] = 5
 
     PlotConf["Grid"] = True
-    PlotConf["Map"] = True
 
     PlotConf["Marker"] = 'o'
 
     # Prepare data to be plotted
     FilterCond = PerfData[PerfIdx["SERVICE"]] == Service
+    
     Lon = PerfData[PerfIdx["LON"]][FilterCond].to_numpy()
     Lat = PerfData[PerfIdx["LAT"]][FilterCond].to_numpy()
     Vdop = PerfData[PerfIdx["VDOPMAX"]][FilterCond].to_numpy()
     Rcvr = PerfData[PerfIdx["RCVR"]][FilterCond].to_numpy()
 
     # Colorbar definition
-    PlotConf["ColorBar"] = "gnuplot"
+    PlotConf["ColorBar"] = "rainbow"
     PlotConf["ColorBarLabel"] = "Maximum VDOP [m]"
     PlotConf["ColorBarMin"] = 0.0
     PlotConf["ColorBarMax"] = 20.0
-    PlotConf["ColorBarTicks"] = None
 
     # Plotting
     PlotConf["xData"] = Lon
     PlotConf["yData"] = Lat
     PlotConf["zData"] = Vdop
-    PlotConf["nData"] = Rcvr
+    PlotConf["Rcvr"] = Rcvr
 
     # Call generatePlot from Plots library
     generatePlot(PlotConf)

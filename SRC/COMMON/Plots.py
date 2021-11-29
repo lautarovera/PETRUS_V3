@@ -163,7 +163,7 @@ def prepareColorBar(PlotConf, ax, Values, Polar = 0):
     if "ColorBarTicks" in PlotConf:
         cbar = mpl.colorbar.ColorbarBase(color_ax, 
         cmap=cmap,
-        norm=mpl.colors.BoundaryNorm(PlotConf["ColorBarTicks"], cmap.N),
+        norm=mpl.colors.Normalize(vmin=Min, vmax=Max),
         label=PlotConf["ColorBarLabel"],
         ticks=PlotConf["ColorBarTicks"])
 
@@ -399,6 +399,68 @@ def generateStatsPlot(PlotConf):
     saveFigure(fig, PlotConf["Path"])
     plt.close('all')
 
+def generatePerfPlot(PlotConf):
+    LineWidth = 15.0
+
+    fig, ax = createFigure(PlotConf)
+
+    prepareAxis(PlotConf, ax)
+
+    drawMap(PlotConf, ax)
+
+    for key in PlotConf:
+        if key == "LineWidth":
+            LineWidth = PlotConf["LineWidth"]
+        if key == "ColorBar":
+            normalize, cmap = prepareColorBar(PlotConf, ax, PlotConf["zData"])
+
+    
+    ax.scatter(PlotConf["xData"], PlotConf["yData"],
+               marker=PlotConf["Marker"],
+               s=LineWidth,
+               zorder=10,
+               c=cmap(normalize(np.array(PlotConf["zData"]))))
+
+    for i, label1 in enumerate(PlotConf["Rcvr"]):
+        ax.annotate("%s" % label1, xy=(PlotConf["xData"][i], PlotConf["yData"][i]),
+                    xytext=(PlotConf["xData"][i] - 2.0, (PlotConf["yData"][i] + 0.7)), color='grey')
+
+    for j, label2 in enumerate(PlotConf["zData"]):
+        if "Decimal" in PlotConf.keys():
+            ax.annotate("%.1e" % label2, xy=(PlotConf["xData"][j], PlotConf["yData"][j]),
+                        xytext=(PlotConf["xData"][j] - 2.0, (PlotConf["yData"][j] - 1.5)), color='grey')
+        elif "Integer" in PlotConf.keys():
+            ax.annotate("%d" % label2, xy=(PlotConf["xData"][j], PlotConf["yData"][j]),
+                        xytext=(PlotConf["xData"][j] - 1.0, (PlotConf["yData"][j] - 1.5)), color='grey')
+        else:
+            ax.annotate("%.2f" % label2, xy=(PlotConf["xData"][j], PlotConf["yData"][j]),
+                        xytext=(PlotConf["xData"][j] - 2.0, (PlotConf["yData"][j] - 1.5)), color='grey')
+
+    saveFigure(fig, PlotConf["Path"])
+    plt.close('all')
+
+
+def generateHistogram(PlotConf):
+    BarWidth = 0.005
+
+    fig, ax = createFigure(PlotConf)
+
+    prepareAxis(PlotConf, ax)
+
+    for key in PlotConf:
+        if key == "BarWidth":
+            BarWidth = PlotConf["BarWidth"]
+
+    ax.bar(PlotConf["xData"], PlotConf["yData"], width=BarWidth, align="edge")
+    ax.plot(PlotConf["x2Data"], PlotConf["y2Data"], c="orange")
+
+    for key in PlotConf:
+        if key == "Legend":
+            plt.legend(PlotConf["Legend"])
+
+    saveFigure(fig, PlotConf["Path"])
+
+
 def generatePlot(PlotConf):
     if(PlotConf["Type"] == "Lines"):
         generateLinesPlot(PlotConf)
@@ -408,3 +470,9 @@ def generatePlot(PlotConf):
     
     if(PlotConf["Type"] == "Stats"):
         generateStatsPlot(PlotConf)
+
+    if(PlotConf["Type"] == "Perf"):
+        generatePerfPlot(PlotConf)
+
+    if (PlotConf["Type"] == "Hist"):
+        generateHistogram(PlotConf)

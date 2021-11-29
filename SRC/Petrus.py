@@ -323,7 +323,7 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
             # generateCorrPlots(CorrFile, SatFile, RcvrInfo[Rcvr])
 
         # If SPVT outputs are requested
-        if Conf["SPVT_OUT"] == 1:
+        if Conf["SPVT_OUT"] == 0:
             # Close POS output file
             fpos.close()
 
@@ -334,7 +334,7 @@ int(Conf["MIN_NCS_TH"][CSNEPOCHS]),  # Number of consecutive epochs for CS
             generatePosPlots(Conf, PosFile)
 
         # If PERF outputs are requested
-        if Conf["PERF_OUT"] == 0:
+        if Conf["PERF_OUT"] == 1:
         # Close PERF output file
             fperf.close()
 
@@ -376,7 +376,7 @@ print( '\n------------------------------------')
 print( '--> END OF PETRUS ANALYSIS')
 print( '------------------------------------')
 
-if Conf["PERF_OUT"] == 0:
+if Conf["PERF_OUT"] == 1:
     print("INFO: Generating PERF figures for all receivers...")
 
     # Generate PERF plots

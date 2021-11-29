@@ -209,8 +209,8 @@ def plotHPE(PosFile, PosData):
     PlotConf["Grid"] = True
 
     PlotConf["Marker"] = 'o'
-    PlotConf["LineWidth"] = 0.75
-    PlotConf["Alpha"] = 0.75
+    PlotConf["LineWidth"] = 1.5
+    PlotConf["Alpha"] = 0.5
 
     # Colorbar definition
     PlotConf["ColorBar"] = "gnuplot"
